@@ -21,9 +21,6 @@ for i = 1:num
 end
 s1 = 0.75-sc1;
 s2 = sc2-((15*num)/2);
-if ans == -Inf
-    pf = Inf;
-end
-pf1 = pf*10^12;
-pf2 = pf*10^6;
+pf1 = pf*10^10;
+pf2 = pf*100;
 MinObj = (ans) + pf1*((max(0,s1))^2) + pf2*((max(0,s2))^2);

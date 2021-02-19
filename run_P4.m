@@ -1,18 +1,12 @@
 %%
-% The hybrid PSO algorithm is developed that includes the constrained optimization solver fmincon. 
-% For the original PSO, static penalty case is used. The other parameters that are involved in the code is explained through the comments only.
-% In order to change variable from 5 to 20, change the variable nv and corresponding lower and upper bound.
-
-% The other code used with this code is as follows:
-% P4.m - for the original PSO algorithm for the bump test function
-% P4_con.m - for the constrained optimization solver
-% constraint.m - to impose constraints for teh constrained optimization solver
-
-% Variables: 
-% fff = stores the best function value for PSO for each run
-% rgbest = stores the best variable value for PSO for each run
-% Fval_store = stores the best function for fmincon for each run
-% Xval_store = stores the best variable value for fmincon for each run
+% This is the static penalty case
+% To change into dynamic penalty case, uncomment the line 100.
+% If the variable increases to 10 or 50, then change the variable nv and
+% corresponding lower and upper bound.
+% Also, change the iteration count to 1000 when variable nv = 10.
+% To get the best results for each run, open the 'fff' variable
+% To get the corresponding best variables, open the 'rgbest' variable
+% To get best result for each iteration and each run, open 'ffmin' variable
 
 % The explanation for the code is given in a section wise below
 
@@ -23,35 +17,29 @@ tic
 
 %% Input Parameters
 % Varies for each cases 
-lb = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];            % lower bound for nv = 5 / 20
-ub = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];             % upper bound for nv = 5 / 20
+lb = [0 0];            % lower bound for nv = 2
+ub = [10 10];             % upper bound for nv = 2
 
-ns = 100;               % population of swarm particles
-nv = 20;                 % number of design variables
+ns = 60;                % population of swarm particles
+nv = 2;                 % number of design variables
 % change nv if number of varible changes
 
-iter = 300;             % iterations total
+iter = 500;             % iterations total
 func = @P4;             % assigning variable to call to the function
-
-% c1 = local acceleration parameter that is used in original PSO
-% c2 = global acceleration parameter that is used in original PSO
-% w = inertia weight parameter for original PSO. It is modified by 0.99 factor with each iteration.
-% pfc = penalty function value (static case)
-
-maxrun = 5;             % total number of runs
-c1 = 1.7;               % acceleration parameter (local)
-c2 = 2.35;              % acceleration parameter (global)
-w=1.2;                  % inertia weight
+                        
+maxrun = 10;            % total number of runs
+c1 = 1.8;               % acceleration parameter (local)
+c2 = 2.2;               % acceleration parameter (global)
+w=1.3;                  % inertia weight
 delt = 1;               % delta t (time step) value
 pfc = 1.1;              % penalty function value
 
 %% Starting the PSO for all the runs
-% initiating the 'for loop' for obtaining the results for all the runs 
+% initiating the 'for loop' for obtaining the results for all the 10 runs 
 
 for run = 1:maxrun
     
     % initializing the position and velocity of the swarm
-    % randomly generating initial position
     x = zeros(ns,nv);           
     random_n = rand(ns,nv);     % calculates the random number matrix
     for i = 1:nv
@@ -59,13 +47,14 @@ for run = 1:maxrun
     end
     v = zeros(ns,nv);
    
-    %% calculating the first iteration to get the local and global best position of all the particles
+    %% calculating the first iteration to get the local and global best
+    % position of all the particles
     % ValF0 indicates the fitness function value
     % Valbest indicates the best fitness function value
     % xn0 indicates the new position matrix of swarm
     % xbest is the best local position of each particle
     % gbest is the best global position among all the particles
-        
+    
     for i = 1:ns
         [ValF0(i,1)] = func(x(i,:),pfc);
         xn0(i,:) = x(i,:);
@@ -75,10 +64,11 @@ for run = 1:maxrun
     gbest = xn0(index0,:);
     
     it = 1;     % iteration count initiated to 1
-    w = 1.2;    % after every 1 run, the inertia weight reassign to its original value
+    w = 1.3;    % after every 1 run, the inertia weight reassign to its original value
     pfc = 1.1;  % after every 1 run, the penalty function value reassign to its original value
     
     %% running the main PSO loop for 'iter' iterations
+    
     % first updating the particle velocity using the given equation
     while it<=iter
         for i = 1:ns
@@ -107,14 +97,20 @@ for run = 1:maxrun
                 end
             end
         end
-                
+        
+%         pfc = pfc*1.1;          % dynamic penalty function
+        
         % calculating the fitness function value
-        % when calling the function, the input penalty function 'pfc' is used for constraint only
+        % when calling the function, the input penalty function 'pfc' is
+        % used for constraint one only
         for i = 1:ns
             [ValF(i,1)] = func(x(i,:),pfc);
         end
         
-        % comparing the fitness function value with its previous best value and updating the same if new value is less than the old and also it updates the best position xbest
+        % comparing the fitness function value with its previous best value
+        % and updating the same if new value is less than the old and 
+        % also it updates the best position xbest
+        
         for i = 1:ns
             if ValF(i,1) < ValF0(i,1)
                 xbest(i,:) = x(i,:);
@@ -123,9 +119,12 @@ for run = 1:maxrun
         end
         
         % finding and storing the best value for each run and iterations
-        % fmin indicates the best particle fitness value for the running particular iteration and sorts out from swarm size
+        % fmin indicates the best particle fitness value for the running
+        % particular iteration and sorts out from swarm size
         % ffmin stores the best fitness value for each run and iteration
-        % ffite shows the iteration performed for each run - eventually it will be the ('maxrun' x 1) matrix with each element equal to 'iter'
+        % ffite shows the iteration performed for each run - eventually it
+        % will be the 'maxrun' x 1 matrix with each element equal to 'iter'
+        
         [fmin,index]=min(ValF0);       % finding out the best particle
         ffmin(it,run)=fmin;            % storing best fitness
         ffite(run)=it;                 % storing iteration count
@@ -144,7 +143,7 @@ for run = 1:maxrun
         fprintf('%8g  %8g          %8.4f\n',it,index,Valbest);
         
         it=it+1;        % updating the iteration count 
-        w = w*0.99;    % damping factor for inertia weight
+        w = w*0.999;    % damping factor for inertia weight
     end
     
     %% Plotting the convergence characteristics for each run
@@ -152,7 +151,7 @@ for run = 1:maxrun
     
     figure;
     plot(ffmin(1:ffite(run),run),'-k');
-    temp=['P4_PSO',num2str(run),'.png'];
+    temp=['P4_c1_',num2str(c1),'_c2_',num2str(c2),'_',num2str(run),'.png'];
     saveas(gcf,temp);
     
     % PSO main program ------------------------------------ends
@@ -160,8 +159,8 @@ for run = 1:maxrun
     %% Calculating the original function value by using the gbest (global best position) for each run
     % fvalue indicates the best function value
     % fff stores the best function value for each run
-    % rgbest stores the best function variable for each run    
-
+    % rgbest stores the best function variable for each run
+    
     term1 = 0;
     term2 = 1;
     term3 = 0;
@@ -174,28 +173,12 @@ for run = 1:maxrun
     term5 = sqrt(term3);
     fvalue = -term4/term5;
     
-    % fff = stores the best function value for PSO for each run
-    % rgbest = stores the best variable value for PSO for each run
-    % Fval_store = stores the best function for fmincon for each run
-    % Xval_store = stores the best variable value for fmincon for each run
-    
     fff(run)=fvalue;
     rgbest(run,:)=gbest;
     fprintf('--------------------------------------\n');
-    
-    %% Constrained optimization solver
-    
-    figure;
-    options = optimset('PlotFcns',@optimplotfval);
-    [Xvalue,Fval_1,exitf] = fmincon(@P4_con,gbest(1,:),[],[],[],[],0,10,@constraint,options);
-    temp=['convergence_',num2str(run),'.png'];
-    saveas(gcf,temp);
-    Xval_store(run,:) = Xvalue;
-    Fval_store(run,:) = Fval_1;
-    
 end
 toc
-% optimization ----------------------------------ends for all the runs
+% optimization -------------------ends for all the runs
 
 %% Displaying the final best result
 % displays the best function value and variables among all the runs
@@ -203,16 +186,16 @@ toc
 fprintf('\n\n');
 fprintf('*****************************************************\n');
 fprintf('Final Results-------------------------\n');
-[bestfun,bestrun]=min(Fval_store)
-best_variables=Xval_store(bestrun,:)
+[bestfun,bestrun]=min(fff)
+best_variables=rgbest(bestrun,:)
 fprintf('*********************************************************\n');
 
 % displaying the convergence plot for the best run
-% figure;
-% plot(ffmin(1:ffite(bestrun),bestrun),'-k');
-% xlabel('Iteration');
-% ylabel('Fitness function value');
-% title('PSO convergence characteristic')
-% saveas(gcf,'Fit_BestP4.png');
-% 
+
+plot(ffmin(1:ffite(bestrun),bestrun),'-k');
+xlabel('Iteration');
+ylabel('Fitness function value');
+title('PSO convergence characteristic')
+saveas(gcf,'Fit_BestP4.png');
+
 %##############################################-----------------end
