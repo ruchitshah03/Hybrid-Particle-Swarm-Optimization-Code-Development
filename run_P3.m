@@ -1,6 +1,6 @@
 %%
-% This is the general code of PSO algorithm. 
-% The input parameters and penalty function is varied for each cases. 
+% This is the static penalty case
+% To change into dynamic penalty case, uncomment the line 98.
 % To get the best results for each run, open the 'fff' variable
 % To get the corresponding best variables, open the 'rgbest' variable
 % To get best result for each iteration and each run, open 'ffmin' variable
@@ -95,7 +95,7 @@ for run = 1:maxrun
             end
         end
         
-        pfc = pfc*1.1;          % dynamic penalty function
+%         pfc = pfc*1.1;          % dynamic penalty function
         
         % calculating the fitness function value
         % when calling the function, the input penalty function 'pfc' is
@@ -148,7 +148,7 @@ for run = 1:maxrun
     
     figure;
     plot(ffmin(1:ffite(run),run),'-k');
-    temp=['P1_c1_',num2str(c1),'_c2_',num2str(c2),'_',num2str(run),'.png'];
+    temp=['P3_c1_',num2str(c1),'_c2_',num2str(c2),'_',num2str(run),'.png'];
     saveas(gcf,temp);
     
     % PSO main program ------------------------------------ends
@@ -158,10 +158,7 @@ for run = 1:maxrun
     % fff stores the best function value for each run
     % rgbest stores the best function variable for each run
     
-    answer = 0;
-    for i=1:nv-1
-        answer = answer + ((100*((gbest(1,i+1)-((gbest(1,i))^2))^2)) + ((1-(gbest(1,i)))^2));
-    end
+    answer = (gbest(1,1))^2 + (0.5*gbest(1,1)) + (3*gbest(1,1)*gbest(1,2)) + (5*(gbest(1,2))^2);   
     fvalue = answer;
     
     fff(run)=fvalue;
@@ -187,6 +184,6 @@ plot(ffmin(1:ffite(bestrun),bestrun),'-k');
 xlabel('Iteration');
 ylabel('Fitness function value');
 title('PSO convergence characteristic')
-saveas(gcf,'Fit_BestP1.png');
+saveas(gcf,'Fit_BestP3.png');
 
 %##############################################-----------------end

@@ -1,11 +1,11 @@
 %%
-% This is the general code of PSO algorithm. 
-% The input parameters and penalty function is varied for each cases. 
-% To get the best results for each run, open the 'fff' variable
-% To get the corresponding best variables, open the 'rgbest' variable
-% To get best result for each iteration and each run, open 'ffmin' variable
+% For number of variable = 5, uncomment the below lines of lb and ub and
+% change the nv = 5 (number of variable)
+% to get the best results for each run, open the 'fff' variable
+% to get the corresponding best variables, open the 'rgbest' variable
+% to get best result for each iteration and each run, open 'ffmin' variable
 
-% The explanation for the code is given in a section wise below
+% the explanation for the code is given in a section wise below
 
 %%
 clear all; close all; clc;
@@ -13,23 +13,26 @@ warning off;
 tic
 
 %% Input Parameters
-% Varies for each cases 
-lb = [-1 -1];            % lower bound for nv = 2
-ub = [1 1];             % upper bound for nv = 2
+
+lb = [-5 5];            % lower bound for nv = 2
+ub = [5 5];             % upper bound for nv = 2
+
+% lb = [-5 -5 -5 -5 -5];  % lower bound for nv = 5
+% ub = [5 5 5 5 5];       % upper bound for nv = 5
 
 ns = 60;                % population of swarm particles
 nv = 2;                 % number of design variables
 % change nv if number of varible changes
 
 iter = 500;             % iterations total
-func = @P3;             % assigning variable to call to the function
-                        
-maxrun = 10;            % total number of runs
+func = @P1;             % assigning variable to call to the function
+                        % (see function P1 for the formulation of P1)
+
+maxrun = 10;             % total number of runs
 c1 = 1.8;               % acceleration parameter (local)
 c2 = 2.2;               % acceleration parameter (global)
 w=1.3;                  % inertia weight
 delt = 1;               % delta t (time step) value
-pfc = 1.1;              % penalty function value
 
 %% Starting the PSO for all the runs
 % initiating the 'for loop' for obtaining the results for all the 10 runs 
@@ -53,7 +56,7 @@ for run = 1:maxrun
     % gbest is the best global position among all the particles
     
     for i = 1:ns
-        [ValF0(i,1)] = func(x(i,:),pfc);
+        [ValF0(i,1)] = func(x(i,:));
         xn0(i,:) = x(i,:);
     end
     [Valbest,index0] = min(ValF0);
@@ -62,7 +65,6 @@ for run = 1:maxrun
     
     it = 1;     % iteration count initiated to 1
     w = 1.3;    % after every 1 run, the inertia weight reassign to its original value
-    pfc = 1.1;  % after every 1 run, the penalty function value reassign to its original value
     
     %% running the main PSO loop for 'iter' iterations
     
@@ -95,13 +97,9 @@ for run = 1:maxrun
             end
         end
         
-        pfc = pfc*1.1;          % dynamic penalty function
-        
-        % calculating the fitness function value
-        % when calling the function, the input penalty function 'pfc' is
-        % used for constraint one only
+        % calculating the fitness function value 
         for i = 1:ns
-            [ValF(i,1)] = func(x(i,:),pfc);
+            [ValF(i,1)] = func(x(i,:));
         end
         
         % comparing the fitness function value with its previous best value
